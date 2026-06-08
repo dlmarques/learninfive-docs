@@ -151,6 +151,5 @@ Important nuance:
 
 These notes document the current code, not desired behavior:
 
-- The `completeProfileValidation` and `editProfileValidation` middleware arrays exist but are not applied in `routes/user.ts`.
 - The topic generation guard is process-local and will not prevent duplicate generation across horizontally scaled server instances.
 - The OpenAI JSON response is parsed directly. Malformed or schema-incompatible JSON will fail at runtime unless handled upstream.
