@@ -124,7 +124,7 @@ Authenticated persistence:
 Anonymous persistence:
 
 - The client stores quiz attempts in `localStorage` under `pastPlayedQuizzes`.
-- See known implementation notes in [Architecture](./architecture.md#known-implementation-notes) for current guest replay limitations.
+- Stored guest attempts are matched by quiz id, with the topic id used as a fallback for older public topics that do not include a quiz id.
 
 ## 5. Authentication
 

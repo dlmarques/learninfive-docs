@@ -227,7 +227,6 @@ These are the highest-leverage follow-ups visible from the current code:
 
 1. Add backend tests for topic generation, profile creation/editing, token verification, and quiz answer persistence.
 2. Apply profile validation middleware in `routes/user.ts`.
-3. Fix anonymous quiz replay tracking shape in `localStorage`.
-4. Move topic generation locking to a database-backed or distributed lock if running multiple server instances.
-5. Add runtime validation for OpenAI JSON before writing to MongoDB.
-6. Consider indexes or unique constraints for `userId`, topic `id`, and per-day topic uniqueness.
+3. Move topic generation locking to a database-backed or distributed lock if running multiple server instances.
+4. Add runtime validation for OpenAI JSON before writing to MongoDB.
+5. Consider indexes or unique constraints for `userId`, topic `id`, and per-day topic uniqueness.
