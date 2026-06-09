@@ -93,35 +93,35 @@ The expected model response is JSON with:
 - `examples`
 - `quiz`
 
-The server strips Markdown code fences from model output, parses JSON, enriches it with ids, ownership, `date`, and `public`, then writes it to MongoDB.
+The server strips Markdown code fences from model output, parses JSON, enriches it with ids, ownership, `date`, UTC `dayKey`, and `public`, then writes it to MongoDB.
 
 ## Daily Topic Strategy
 
-The current behavior is "one topic per day" by date comparison.
+The current behavior is "one topic per UTC day" by `dayKey`.
 
 Public topics:
 
-- The server searches existing public topics.
+- The server searches existing public topics by `dayKey`.
 - If a topic exists for today, it returns that topic.
-- Otherwise, it generates and stores a new public topic.
+- Otherwise, it acquires a MongoDB generation lock, generates, and stores a new public topic.
 - A scheduled job also generates a public topic at midnight using `node-schedule`.
 
 User topics:
 
-- The server searches topics for the Clerk `sub` user id.
+- The server searches topics for the Clerk `sub` user id and `dayKey`.
 - If today's personalized topic exists, it returns it.
 - If the user already answered that topic's quiz, the returned quiz includes `userAnswer`.
-- Otherwise, it generates a new personalized topic and appends it to the user's `pastTopics`.
+- Otherwise, it acquires a MongoDB generation lock, generates a new personalized topic, and appends it to the user's `pastTopics`.
 
 ## Concurrency Guard
 
-`topics.controller.ts` uses in-memory guards while generation is in progress:
+`topics.controller.ts` uses MongoDB-backed guards while generation is in progress:
 
-- `inProgress`: tracks active generation by `"public"` or `userId`.
-- `publicTopicInProgress`: stores an in-flight public topic once generated.
-- `usersTopicsInProgress`: stores in-flight personalized topics by user id.
+- `topicGenerationLocks`: stores short-lived lease documents by public or user/day scope.
+- Unique topic indexes enforce one public topic per `dayKey` and one personalized topic per `userId + dayKey`.
+- Startup maintenance backfills missing `dayKey` values before creating unique indexes, and fails clearly if duplicate daily topics already exist.
 
-This prevents duplicate generation inside a single server process. Because the guard is in memory, it does not coordinate across multiple server instances.
+This coordinates duplicate prevention across horizontally scaled server instances while keeping the client retry contract for `"Topic in progress"`.
 
 ## Security Controls
 
@@ -151,5 +151,4 @@ Important nuance:
 
 These notes document the current code, not desired behavior:
 
-- The topic generation guard is process-local and will not prevent duplicate generation across horizontally scaled server instances.
 - The OpenAI JSON response is parsed directly. Malformed or schema-incompatible JSON will fail at runtime unless handled upstream.

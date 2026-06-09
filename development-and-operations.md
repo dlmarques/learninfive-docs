@@ -65,8 +65,10 @@ Used in `learninfive-server`:
 | --- | --- |
 | `PORT` | Optional server port. Defaults to `8000`. |
 | `NODE_ENV` | Enables production Helmet headers when set to `production`. |
+| `MONGO_DB_URI` | Optional full MongoDB connection string override. Useful for tests or non-Atlas deployments. |
 | `MONGO_DB_USER` | MongoDB Atlas username. |
 | `MONGO_DB_PASSWORD` | MongoDB Atlas password. |
+| `TOPIC_GENERATION_LOCK_TTL_MS` | Optional topic generation lease duration. Defaults to 120000 milliseconds. |
 | `OPEN_AI_API_KEY` | OpenAI API key. |
 | `CLERK_JWT_KEY` | Clerk JWT verification key. |
 
@@ -88,6 +90,7 @@ From `learninfive-server/package.json`:
 | Script | Command | Purpose |
 | --- | --- | --- |
 | `dev` | `tsx index.ts` | Run API server in development. |
+| `test` | `vitest run` | Run backend tests. |
 | `build` | `tsc` | Compile TypeScript into `dist`. |
 | `start` | `node dist/index.js` | Run compiled server. |
 
@@ -114,7 +117,20 @@ cd learninfive-client
 npm run test
 ```
 
-Backend tests were not found in the repository at the time of this review.
+Backend tests exist under:
+
+```text
+learninfive-server/__tests__
+```
+
+Current backend coverage includes MongoDB-backed topic generation locking, duplicate insert fallback, and UTC day-key behavior.
+
+Run backend tests:
+
+```bash
+cd learninfive-server
+npm run test
+```
 
 ## CI
 
@@ -173,11 +189,16 @@ The public topic schedule is:
 0 0 * * *
 ```
 
-That means midnight in the server process timezone.
+That means midnight in the server process timezone. Topic uniqueness is still keyed by UTC `dayKey`, so all server instances agree on the persisted daily topic.
 
-### Process-local state
+### Topic generation locking
 
-Topic generation uses process memory for `inProgress` guards. If the server is run with multiple instances, each instance will maintain its own guard and scheduler.
+Topic generation uses MongoDB-backed lease documents in `topics.topicGenerationLocks`. If another instance is already generating the same public or user daily topic, the API keeps returning the retry-compatible `"Topic in progress"` response.
+
+Topic uniqueness is enforced by MongoDB indexes:
+
+- public topics: one topic per `dayKey`
+- personalized topics: one topic per `userId + dayKey`
 
 ## Troubleshooting
 
@@ -226,6 +247,5 @@ Check the static host rewrite configuration. The client includes a Vercel rewrit
 These are the highest-leverage follow-ups visible from the current code:
 
 1. Add backend tests for topic generation, profile creation/editing, token verification, and quiz answer persistence.
-2. Move topic generation locking to a database-backed or distributed lock if running multiple server instances.
-3. Add runtime validation for OpenAI JSON before writing to MongoDB.
-4. Consider indexes or unique constraints for `userId`, topic `id`, and per-day topic uniqueness.
+2. Add runtime validation for OpenAI JSON before writing to MongoDB.
+3. Consider indexes or unique constraints for `userId` and topic `id`.
