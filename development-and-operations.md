@@ -123,7 +123,7 @@ Backend tests exist under:
 learninfive-server/__tests__
 ```
 
-Current backend coverage includes MongoDB-backed topic generation locking, duplicate insert fallback, and UTC day-key behavior.
+Current backend coverage includes MongoDB-backed topic generation locking, duplicate insert fallback, UTC day-key behavior, profile creation/editing, Clerk token verification, and quiz answer persistence.
 
 Run backend tests:
 
@@ -246,5 +246,4 @@ Check the static host rewrite configuration. The client includes a Vercel rewrit
 
 These are the highest-leverage follow-ups visible from the current code:
 
-1. Add backend tests for topic generation, profile creation/editing, token verification, and quiz answer persistence.
-2. Consider indexes or unique constraints for `userId` and topic `id`.
+1. Consider indexes or unique constraints for `userId` and topic `id`.
