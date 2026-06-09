@@ -93,7 +93,7 @@ The expected model response is JSON with:
 - `examples`
 - `quiz`
 
-The server strips Markdown code fences from model output, parses JSON, enriches it with ids, ownership, `date`, UTC `dayKey`, and `public`, then writes it to MongoDB.
+The server strips Markdown code fences from model output, parses and validates the JSON shape, enriches it with ids, ownership, `date`, UTC `dayKey`, and `public`, then writes it to MongoDB.
 
 ## Daily Topic Strategy
 
@@ -151,4 +151,4 @@ Important nuance:
 
 These notes document the current code, not desired behavior:
 
-- The OpenAI JSON response is parsed directly. Malformed or schema-incompatible JSON will fail at runtime unless handled upstream.
+- OpenAI topic JSON is validated at runtime before MongoDB writes. Invalid JSON or schema-incompatible responses fail topic generation without persisting partial topic data.

@@ -247,5 +247,4 @@ Check the static host rewrite configuration. The client includes a Vercel rewrit
 These are the highest-leverage follow-ups visible from the current code:
 
 1. Add backend tests for topic generation, profile creation/editing, token verification, and quiz answer persistence.
-2. Add runtime validation for OpenAI JSON before writing to MongoDB.
-3. Consider indexes or unique constraints for `userId` and topic `id`.
+2. Consider indexes or unique constraints for `userId` and topic `id`.
