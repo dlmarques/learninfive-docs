@@ -113,9 +113,10 @@ Important note:
    - topics to avoid
 3. `useCompleteProfile` reads Clerk `userId` and token.
 4. Client sends `POST /users/complete-profile`.
-5. Server checks whether the user already exists.
-6. If the user does not exist, server inserts the profile into `users.user`.
-7. Client shows a success toast and navigates to `/`.
+5. Server verifies that the submitted `userId` matches the authenticated token subject.
+6. Server checks whether the user already exists.
+7. If the user does not exist, server inserts the profile into `users.user`.
+8. Client shows a success toast and navigates to `/`.
 
 ## 7. Edit Profile Flow
 
@@ -125,8 +126,9 @@ Important note:
 4. The edit form is prefilled.
 5. User submits updated profile fields.
 6. Client sends `PATCH /users/edit-profile`.
-7. Server updates the user document.
-8. Client shows a success toast and navigates to `/`.
+7. Server verifies that the submitted `userId` matches the authenticated token subject.
+8. Server updates the user document.
+9. Client shows a success toast and navigates to `/`.
 
 ## 8. Quiz Answer Flow
 
@@ -167,4 +169,3 @@ Important note:
 3. Otherwise, `window.matchMedia("(prefers-color-scheme: dark)")` decides the initial theme.
 4. The theme is stored in Zustand and persisted in `localStorage`.
 5. The HTML root gets `data-theme="dark"` or `data-theme="light"`.
-

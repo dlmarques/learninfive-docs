@@ -195,10 +195,15 @@ That means midnight in the server process timezone. Topic uniqueness is still ke
 
 Topic generation uses MongoDB-backed lease documents in `topics.topicGenerationLocks`. If another instance is already generating the same public or user daily topic, the API keeps returning the retry-compatible `"Topic in progress"` response.
 
-Topic uniqueness is enforced by MongoDB indexes:
+Startup maintenance ensures the MongoDB indexes used for identity, uniqueness, and lock expiry:
 
-- public topics: one topic per `dayKey`
-- personalized topics: one topic per `userId + dayKey`
+- `users.user`: unique `userId`
+- `topics.topic`: unique topic `id`
+- `topics.topic`: one public topic per `dayKey`
+- `topics.topic`: one personalized topic per `userId + dayKey`
+- `topics.topicGenerationLocks`: TTL expiry on `expiresAt`
+
+Startup fails with a duplicate report instead of creating unique indexes over conflicting data.
 
 ## Troubleshooting
 
@@ -241,9 +246,3 @@ Check:
 ### Production page refresh returns 404
 
 Check the static host rewrite configuration. The client includes a Vercel rewrite from every path to `/index.html`.
-
-## Maintenance Priorities
-
-These are the highest-leverage follow-ups visible from the current code:
-
-1. Consider indexes or unique constraints for `userId` and topic `id`.

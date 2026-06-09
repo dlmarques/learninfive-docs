@@ -114,7 +114,7 @@ Notes:
 
 - The client intentionally does not redirect to `/error` when this response content is received.
 - React Query retries the topic request.
-- Personalized topics receive a server-generated `quiz.id`. Public topics currently depend on the model response for `quiz.id`.
+- Topics receive server-generated topic and quiz IDs.
 
 ## `POST /topics/answer-quiz`
 
@@ -292,6 +292,8 @@ Body:
 }
 ```
 
+The `userId` value must match the authenticated Clerk token subject.
+
 Success response:
 
 ```json
@@ -307,6 +309,15 @@ Already exists:
 {
   "success": false,
   "content": "User already exists."
+}
+```
+
+User mismatch:
+
+```json
+{
+  "success": false,
+  "content": "Profile userId does not match authenticated user."
 }
 ```
 
@@ -347,6 +358,8 @@ Body:
   "topicsToAvoid": "CSS basics"
 }
 ```
+
+The `userId` value must match the authenticated Clerk token subject.
 
 Success response:
 

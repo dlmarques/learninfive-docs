@@ -118,8 +118,9 @@ User topics:
 `topics.controller.ts` uses MongoDB-backed guards while generation is in progress:
 
 - `topicGenerationLocks`: stores short-lived lease documents by public or user/day scope.
-- Unique topic indexes enforce one public topic per `dayKey` and one personalized topic per `userId + dayKey`.
-- Startup maintenance backfills missing `dayKey` values before creating unique indexes, and fails clearly if duplicate daily topics already exist.
+- Unique topic indexes enforce stable topic IDs, one public topic per `dayKey`, and one personalized topic per `userId + dayKey`.
+- A unique user index enforces one profile per Clerk `userId`.
+- Startup maintenance backfills missing `dayKey` values before creating unique indexes, and fails clearly if conflicting duplicate data already exists.
 
 This coordinates duplicate prevention across horizontally scaled server instances while keeping the client retry contract for `"Topic in progress"`.
 
